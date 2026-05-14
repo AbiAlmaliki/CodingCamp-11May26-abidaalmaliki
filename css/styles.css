@@ -6,7 +6,7 @@
    ============================================================ */
 :root {
   /* Colors — all combinations meet WCAG AA 4.5:1 on their backgrounds */
-  --color-bg:           #7be1ed;   /* page background */
+  --color-bg:           #68d2de;   /* page background */
   --color-surface:      #ffffff;   /* card/section background */
   --color-border:       #d1d5db;   /* subtle borders */
   --color-text:         #1a1a2e;   /* primary text — contrast ~14:1 on white */
@@ -501,9 +501,7 @@ button:active {
 /* ============================================================
    Chart Container  (#chart-container)
    ============================================================ */
-#chart-section {
-  /* Full-width section */
-}
+
 
 #chart-container {
   position: relative;
