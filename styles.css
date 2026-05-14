@@ -1,0 +1,649 @@
+/* styles.css — Expense & Budget Visualizer */
+/* Requirements: 9.2, 9.3, 9.4, 9.6 */
+
+/* ============================================================
+   CSS Custom Properties (Design Tokens)
+   ============================================================ */
+:root {
+  /* Colors — all combinations meet WCAG AA 4.5:1 on their backgrounds */
+  --color-bg:           #7be1ed;   /* page background */
+  --color-surface:      #ffffff;   /* card/section background */
+  --color-border:       #d1d5db;   /* subtle borders */
+  --color-text:         #1a1a2e;   /* primary text — contrast ~14:1 on white */
+  --color-text-muted:   #4b5563;   /* secondary text — contrast ~7:1 on white */
+  --color-primary:      #2563eb;   /* interactive blue — contrast ~5.9:1 on white */
+  --color-primary-dark: #1d4ed8;   /* hover state */
+  --color-danger:       #b91c1c;   /* error red — contrast ~7.5:1 on white */
+  --color-danger-bg:    #fef2f2;   /* error field background */
+  --color-warning-bg:   #fffbeb;   /* amber banner background */
+  --color-warning-text: #92400e;   /* amber banner text — contrast ~7:1 on #fffbeb */
+  --color-warning-border:#f59e0b;
+  --color-error-bg:     #fef2f2;   /* red banner background */
+  --color-error-text:   #991b1b;   /* red banner text — contrast ~7:1 on #fef2f2 */
+  --color-error-border: #f87171;
+  --color-delete:       #dc2626;
+  --color-delete-dark:  #b91c1c;
+  --color-balance:      #065f46;   /* green — contrast ~8:1 on white */
+
+  /* Typography */
+  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-size-base:   1rem;        /* 16px */
+  --font-size-sm:     0.875rem;    /* 14px — only used for supplementary text */
+  --font-size-lg:     1.125rem;    /* 18px */
+  --font-size-xl:     1.5rem;      /* 24px */
+  --font-size-2xl:    2rem;        /* 32px */
+  --line-height:      1.6;
+
+  /* Spacing */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-12: 3rem;
+
+  /* Touch targets — WCAG 2.5.5 / Req 9.6 */
+  --touch-target: 44px;
+
+  /* Layout */
+  --max-width:        1200px;
+  --section-radius:   0.5rem;
+  --shadow-sm:        0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md:        0 4px 12px rgba(0, 0, 0, 0.10);
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent horizontal scroll at any viewport width (Req 9.2) */
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base); /* minimum 16px — Req 9.3 */
+  line-height: var(--line-height);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   Typography Hierarchy (Req 9.4)
+   ============================================================ */
+h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: var(--space-2);
+}
+
+p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   Warning / Error Banner  (#app-banner)
+   Req 8.5, 8.6 — visible without page interaction
+   ============================================================ */
+#app-banner {
+  width: 100%;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* hidden attribute hides the banner by default */
+#app-banner[hidden] {
+  display: none;
+}
+
+#app-banner.banner-warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border-bottom-color: var(--color-warning-border);
+}
+
+#app-banner.banner-error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
+  border-bottom-color: var(--color-error-border);
+}
+
+/* ============================================================
+   Main Layout — responsive single → two column (Req 9.2)
+   ============================================================ */
+main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+  /* Single-column grid on mobile; two-column on wider screens */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+/* Two-column layout at 768px+ */
+@media (min-width: 768px) {
+  main {
+    padding: var(--space-8) var(--space-6);
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "heading      heading"
+      "balance      balance"
+      "add-form     custom-cat"
+      "monthly      sort"
+      "transactions transactions"
+      "chart        chart";
+  }
+
+  h1 {
+    grid-area: heading;
+  }
+
+  #balance-section {
+    grid-area: balance;
+  }
+
+  #transaction-form-section {
+    grid-area: add-form;
+  }
+
+  #custom-category-section {
+    grid-area: custom-cat;
+  }
+
+  #monthly-section {
+    grid-area: monthly;
+  }
+
+  #sort-section {
+    grid-area: sort;
+  }
+
+  #transaction-list-section {
+    grid-area: transactions;
+  }
+
+  #chart-section {
+    grid-area: chart;
+  }
+}
+
+/* Wide layout at 1024px+ */
+@media (min-width: 1024px) {
+  main {
+    padding: var(--space-8);
+  }
+}
+
+/* ============================================================
+   Section Cards
+   ============================================================ */
+main > section,
+main > h1 {
+  background-color: var(--color-surface);
+  border-radius: var(--section-radius);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+}
+
+main > h1 {
+  /* h1 is not a section — remove card styling */
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: var(--space-4) 0 0;
+}
+
+/* ============================================================
+   Balance Display
+   ============================================================ */
+#balance-section {
+  text-align: center;
+}
+
+#balance-display {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-balance);
+  margin-top: var(--space-2);
+  letter-spacing: -0.01em;
+}
+
+/* ============================================================
+   Form Groups & Labels
+   ============================================================ */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.form-group:last-of-type {
+  margin-bottom: 0;
+}
+
+label {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+/* ============================================================
+   Inputs, Selects — touch targets (Req 9.6)
+   ============================================================ */
+input[type="text"],
+input[type="number"],
+input[type="month"],
+select {
+  width: 100%;
+  min-height: var(--touch-target);   /* 44px touch target — Req 9.6 */
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);  /* minimum 16px — Req 9.3 */
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 0.375rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="month"]:focus,
+select:focus {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 1px;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Select arrow */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-8);
+  cursor: pointer;
+}
+
+/* Input with validation error */
+input[aria-invalid="true"],
+select[aria-invalid="true"] {
+  border-color: var(--color-danger);
+  background-color: var(--color-danger-bg);
+}
+
+/* ============================================================
+   Inline Error Messages (.error-message)
+   ============================================================ */
+.error-message {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  font-weight: 500;
+  min-height: 1.25rem; /* reserve space to prevent layout shift */
+  display: block;
+}
+
+.error-message:empty {
+  display: none;
+}
+
+/* ============================================================
+   Buttons — touch targets (Req 9.6)
+   ============================================================ */
+button[type="submit"],
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target);   /* 44px touch target — Req 9.6 */
+  min-width: var(--touch-target);
+  padding: var(--space-2) var(--space-6);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+button[type="submit"]:hover,
+button:hover {
+  background-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+button[type="submit"]:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+button[type="submit"]:active,
+button:active {
+  transform: translateY(1px);
+}
+
+/* ============================================================
+   Monthly Summary
+   ============================================================ */
+#monthly-total-display {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-top: var(--space-3);
+}
+
+/* ============================================================
+   Transaction List  (#transaction-list)
+   ============================================================ */
+#transaction-list {
+  list-style: none;
+  max-height: 480px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  /* Smooth scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+#transaction-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+#transaction-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#transaction-list::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 3px;
+}
+
+/* Empty state */
+#transaction-list:empty::after {
+  content: "No transactions yet.";
+  display: block;
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+}
+
+/* Individual transaction row (.transaction-item) */
+.transaction-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas:
+    "name   amount  delete"
+    "cat    amount  delete";
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  transition: background-color 0.1s ease;
+}
+
+.transaction-item:last-child {
+  border-bottom: none;
+}
+
+.transaction-item:hover {
+  background-color: var(--color-bg);
+}
+
+/* Transaction name */
+.transaction-name {
+  grid-area: name;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Transaction category */
+.transaction-category {
+  grid-area: cat;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Transaction amount */
+.transaction-amount {
+  grid-area: amount;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Delete button — touch target (Req 9.6) */
+.delete-btn {
+  grid-area: delete;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+  padding: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-delete);
+  background-color: transparent;
+  border: 1.5px solid var(--color-delete);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  width: auto;
+  margin-top: 0;
+}
+
+.delete-btn:hover {
+  background-color: var(--color-delete);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.delete-btn:focus-visible {
+  outline: 3px solid var(--color-delete);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   Chart Container  (#chart-container)
+   ============================================================ */
+#chart-section {
+  /* Full-width section */
+}
+
+#chart-container {
+  position: relative;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+#chart-canvas {
+  width: 100% !important;
+  max-width: 480px;
+  height: auto !important;
+}
+
+#chart-no-data,
+#chart-fallback {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+}
+
+#chart-fallback {
+  color: var(--color-danger);
+}
+
+#chart-fallback[hidden],
+#chart-no-data[hidden] {
+  display: none;
+}
+
+/* ============================================================
+   Utility: visually hidden (for screen-reader-only text)
+   ============================================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   Responsive Adjustments
+   ============================================================ */
+
+/* Narrow mobile (320px–479px) */
+@media (max-width: 479px) {
+  h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  h2 {
+    font-size: var(--font-size-lg);
+  }
+
+  #balance-display {
+    font-size: var(--font-size-xl);
+  }
+
+  main > section,
+  main > h1 {
+    padding: var(--space-4);
+  }
+
+  .transaction-item {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name    delete"
+      "cat     delete"
+      "amount  delete";
+    gap: var(--space-1) var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .transaction-amount {
+    font-size: var(--font-size-base);
+    text-align: left;
+  }
+}
+
+/* Tablet (768px–1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #chart-container {
+    max-width: 400px;
+  }
+}
+
+/* Large screens (1280px+) */
+@media (min-width: 1280px) {
+  main {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas:
+      "heading      heading      heading"
+      "balance      balance      balance"
+      "add-form     custom-cat   monthly"
+      "sort         sort         sort"
+      "transactions transactions transactions"
+      "chart        chart        chart";
+  }
+
+  #monthly-section {
+    grid-area: monthly;
+  }
+}
+
+/* ============================================================
+   Print styles — basic readability
+   ============================================================ */
+@media print {
+  #app-banner,
+  button,
+  #sort-section,
+  #chart-section {
+    display: none;
+  }
+
+  body {
+    background: rgb(255, 255, 255);
+    color: black;
+    font-size: 12pt;
+  }
+
+  main {
+    display: block;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  main > section {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+    page-break-inside: avoid;
+  }
+}

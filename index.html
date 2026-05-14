@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense &amp; Budget Visualizer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+
+    <!-- Persistent warning/error banner -->
+    <div id="app-banner" role="alert" aria-live="polite" hidden></div>
+
+    <main>
+      <h1>EXPENSE &amp; BUDGET VISUALIZER</h1>
+
+      <!-- Balance Section -->
+      <section id="balance-section" aria-labelledby="balance-heading">
+        <h2 id="balance-heading">Total Balance</h2>
+        <p id="balance-display">0.00</p>
+      </section>
+
+      <!-- Transaction Input Form -->
+      <section id="transaction-form-section" aria-labelledby="transaction-form-heading">
+        <h2 id="transaction-form-heading">Add Transaction</h2>
+        <form id="transaction-form" novalidate>
+
+          <div class="form-group">
+            <label for="item-name">Item Name</label>
+            <input
+              type="text"
+              id="item-name"
+              name="item-name"
+              maxlength="100"
+              autocomplete="off"
+              aria-describedby="item-name-error"
+              aria-required="true"
+            />
+            <span id="item-name-error" class="error-message" role="alert" aria-live="polite"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="amount">Amount</label>
+            <input
+              type="number"
+              id="amount"
+              name="amount"
+              min="0.01"
+              step="0.01"
+              aria-describedby="amount-error"
+              aria-required="true"
+            />
+            <span id="amount-error" class="error-message" role="alert" aria-live="polite"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category</label>
+            <select
+              id="category"
+              name="category"
+              aria-describedby="category-error"
+              aria-required="true"
+            >
+              <!-- Populated by app.js -->
+            </select>
+            <span id="category-error" class="error-message" role="alert" aria-live="polite"></span>
+          </div>
+
+          <button type="submit">Add Transaction</button>
+        </form>
+      </section>
+
+      <!-- Custom Category Form -->
+      <section id="custom-category-section" aria-labelledby="custom-category-heading">
+        <h2 id="custom-category-heading">Add Custom Category</h2>
+        <form id="custom-category-form" novalidate>
+
+          <div class="form-group">
+            <label for="custom-category-name">Category Name</label>
+            <input
+              type="text"
+              id="custom-category-name"
+              name="custom-category-name"
+              maxlength="50"
+              autocomplete="off"
+              aria-describedby="custom-category-error"
+              aria-required="true"
+            />
+            <span id="custom-category-error" class="error-message" role="alert" aria-live="polite"></span>
+          </div>
+
+          <button type="submit">Add Category</button>
+        </form>
+      </section>
+
+      <!-- Month Selector -->
+      <section id="monthly-section" aria-labelledby="monthly-heading">
+        <h2 id="monthly-heading">Monthly Summary</h2>
+
+        <div class="form-group">
+          <label for="month-selector">Select Month</label>
+          <input
+            type="month"
+            id="month-selector"
+            name="month-selector"
+            aria-describedby="monthly-total-display"
+          />
+        </div>
+
+        <p id="monthly-total-display"></p>
+      </section>
+
+      <!-- Sort Control -->
+      <section id="sort-section" aria-labelledby="sort-heading">
+        <h2 id="sort-heading">Sort Transactions</h2>
+
+        <div class="form-group">
+          <label for="sort-select">Sort By</label>
+          <select id="sort-select" name="sort-select">
+            <option value="default">Default (Date Added)</option>
+            <option value="amount-asc">Amount (Low to High)</option>
+            <option value="amount-desc">Amount (High to Low)</option>
+            <option value="category-az">Category (A–Z)</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Transaction List -->
+      <section id="transaction-list-section" aria-labelledby="transaction-list-heading">
+        <h2 id="transaction-list-heading">Transactions</h2>
+        <ul id="transaction-list" aria-live="polite" aria-label="Transaction list">
+          <!-- Populated by app.js -->
+        </ul>
+      </section>
+
+      <!-- Chart Section -->
+      <section id="chart-section" aria-labelledby="chart-heading">
+        <h2 id="chart-heading">Spending by Category</h2>
+
+        <div id="chart-container">
+          <canvas id="chart-canvas" aria-label="Pie chart showing spending by category" role="img"></canvas>
+          <p id="chart-no-data" aria-live="polite" hidden>No data available.</p>
+          <p id="chart-fallback" hidden>Chart unavailable — please check your connection.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Chart.js CDN -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4"
+      onerror="document.getElementById('chart-fallback').hidden = false; document.getElementById('chart-canvas').hidden = true;"
+    ></script>
+
+    <!-- App logic -->
+    <script src="app.js"></script>
+  </body>
+</html>
